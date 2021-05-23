@@ -58,7 +58,7 @@ class AccessPoint:
 
             else:
                 wg_50_id = wlan_group_50[0]['id']
-
+            
             self.ra.ap_modify(
                     ap_mac=self.mac,
                     data={'wlanGroup{}'.format('50'): {'id': wg_50_id,

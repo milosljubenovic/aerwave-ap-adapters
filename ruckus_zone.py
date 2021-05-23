@@ -27,7 +27,7 @@ class RuckusZone:
         for wlan in wlans:
             self.wlans[wlan['id']] = Wlan(wlan)
 
-    def create_wlan(self, zone_id, wlan_data):
+    def create_wlan(self, zone_status, wlan_data):
 
 
         wlan_id = self.ra.wlan_create(zone_id = self.zone_id, 
@@ -42,13 +42,13 @@ class RuckusZone:
             wlan_data = self.ra.wlan_retrieve(self.zone_id, wlan_id)
             self.wlans[wlan_id] = Wlan(wlan_data)
             rv =  wlan_id
+            
             self.db.assign_wlan_id_to_zone(self.zone_id, wlan_id, wlan_data)
         else:
             # EMAIL THAT WE FAILED
             print ('We failed man..')
             rv = False
-
-        zone_id[self.zone_id] = rv
+        zone_status[self.zone_id] = rv
         return rv
 
     def delete_wlan(self, zones_status, zone_id, wlan_id):

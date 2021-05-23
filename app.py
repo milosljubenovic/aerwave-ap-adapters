@@ -4,9 +4,15 @@ from ruckus_api import RuckusAPI
 
 from db.database_api import DatabaseAPI
 from threading import Thread
+import yaml
 
 app = Flask(__name__)
+cfg = yaml.load(open('config.yml', 'rb'), yaml.FullLoader)
+ruckus_api = RuckusAPI(cfg)
+database_api = DatabaseAPI(cfg)
 
+ruckus_server = RuckusServer(ruckus_api = ruckus_api, db=database_api)
+print ("finished server worker init.")
 @app.route('/create_wlan', methods=['POST'])
 def create_wlan():
 
@@ -23,7 +29,16 @@ def create_wlan():
         threads[zone_name].join()
 
     if False not in [status for _, status in zones_status.items()]:
-        return jsonify(msg="Wlan created succesfuly", ruckus = zones_status), 200
+        zone = ruckus_server.zones[data['prop_zoneid']]
+        ap = zone.aps[data['ap_mac']]
+        wlan_id = zones_status[data['prop_zoneid']]
+        wlan_obj = zone.wlans[wlan_id]
+        resp24, resp50 = ap.assign_static(wlan_id, wlan_obj)
+
+        if not resp24 and not resp50:
+            return jsonify(msg="Wlan created succesfuly", ruckus = zones_status), 200
+        else:
+            return jsonify(msg="Failed on assign to AP"), 200
     else:
         return jsonify(msg="Failed on wlan creation...", ruckus = zones_status), 302
 
