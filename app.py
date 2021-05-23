@@ -15,8 +15,6 @@ def create_wlan():
     zones_status = {}
     threads = {}
     
-    zone =  ruckus_server.zones['3cea44bd-31d6-4e0f-9ae7-d1d21ddc4f5d']
-
     for zone_name, zone in ruckus_server.zones.items():
         threads[zone_name] = Thread(target=zone.create_wlan, args=(zones_status, data))
         threads[zone_name].start()
@@ -45,7 +43,32 @@ def assign_static():
     else:
         return jsonify(msg="Error occured..."), 302
 
+@app.route('/delete_wlan', methods=['DELETE'])
+def delete_wlan():
+    
+    data = request.json
 
+    threads = {}
+    zones_status = {}
+
+    for zone_id, wlan_id in data['ruckus'].items():
+        zone = ruckus_server.zones[zone_id]
+        threads[zone_id] = Thread(name=zone_id, target = zone.delete_wlan, 
+                    args=(zones_status, zone_id, wlan_id))
+        threads[zone_id].start()
+
+    for _, t in threads.items():
+        t.join()
+
+    if False not in [status for _, status in zones_status.items()]:
+        return jsonify(msg="Wlan created succesfuly", ruckus = zones_status), 200
+    else:
+        return jsonify(msg="Failed on wlan creation...", ruckus = zones_status), 302
+
+
+
+
+        
 
 if __name__ == "__main__":
 

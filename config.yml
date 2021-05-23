@@ -4,5 +4,18 @@ db:
   host: '104.155.136.171'
   database: 'aerwave_database'
 
+
 email_service:
   url : 'http://34.123.68.94:9090'
+
+
+flask:
+  host : '0.0.0.0'
+  port: 9091
+ruckus:
+  username: 'aerapi'
+  password: 'frgS4Ztqr8AcNGc!'
+  url: 'https://dalvsz.aerwave.io:8443/wsg/api/public'
+  # comment out and change to False if there is a need to enable on multiple APs
+  req_listsize : '1000' # increased number of list items obtained from vSZ
+  max_connections: 100
