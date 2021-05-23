@@ -1,0 +1,8 @@
+db:
+  user: 'aerwave-mysql'
+  password: '8158548222'
+  host: '104.155.136.171'
+  database: 'aerwave_database'
+
+email_service:
+  url : 'http://34.123.68.94:9090'
