@@ -148,27 +148,36 @@ class DatabaseAPI:
         if not unit:
             return False
 
-        if not unit.rwg_24_id:
-            rwg_24 = RuckusWg24(wg24_name=wg_24.name,
-                                wg24_id=wg_24.wg_id)
-            session.add(rwg_24)
-            
+        rwg_24 = session.query(RuckusWg24).filter(RuckusWg24.wg24_name == wg_24.name).first()
+        
+        if not unit.rwg_24_id:    
+            if rwg_24:
+                unit.wg24_name=wg_24.name
+                unit.wg24_id = wg_24.wg_id
+            else:
+                rwg_24 = RuckusWg24(wg24_name=wg_24.name,
+                                    wg24_id=wg_24.wg_id)
+                session.add(rwg_24)
         else:
-            unit.wg24_name=wg_24.name
-            unit.wg24_id = wg_24.wg_id
-
-        if not unit.rwg_50_id:
-            rwg_50 = RuckusWg50(wg50_name=wg_50.name,
-                                wg50_id=wg_50.wg_id)
+            rwg_24 = session.query(RuckusWg24).filter(RuckusWg24.rwg_24_id == unit.rwg_24_id).first()
+            rwg_24.wg24_name=wg_24.name
+            rwg_24.wg24_id = wg_24.wg_id
 
         
-    
-
-            session.add(rwg_50)
+        rwg_50 = session.query(RuckusWg50).filter(RuckusWg50.wg50_name == wg_50.name).first()
+        
+        if not unit.rwg_50_id:    
+            if rwg_50:
+                unit.wg50_name=wg_50.name
+                unit.wg50_id = wg_50.wg_id
+            else:
+                rwg_50 = RuckusWg50(wg50_name=wg_50.name,
+                                    wg50_id=wg_50.wg_id)
+                session.add(rwg_50)
         else:
-            unit.wg50_name=wg_50.name
-            unit.wg50_id = wg_50.wg_id
-
+            rwg_50 = session.query(RuckusWg50).filter(RuckusWg50.rwg_50_id == unit.rwg_50_id).first()
+            rwg_50.wg50_name=wg_50.name
+            rwg_50.wg50_id = wg_50.wg_id
         
         session.commit()
 
