@@ -22,7 +22,7 @@ class RuckusZone:
         wlans = self.ra.get_wlans(self.zone_id)
 
         for ap in zone_aps:
-            self.aps[ap['mac']] = AccessPoint(self.ra, ap, wlan_groups)
+            self.aps[ap['mac']] = AccessPoint(self.ra, ap, wlan_groups, self.db)
         
         for wlan in wlans:
             self.wlans[wlan['id']] = Wlan(wlan)
@@ -42,7 +42,7 @@ class RuckusZone:
             wlan_data = self.ra.wlan_retrieve(self.zone_id, wlan_id)
             self.wlans[wlan_id] = Wlan(wlan_data)
             rv =  wlan_id
-            
+
             self.db.assign_wlan_id_to_zone(self.zone_id, wlan_id, wlan_data)
         else:
             # EMAIL THAT WE FAILED

@@ -136,6 +136,17 @@ class RuckusAPI:
         return resp
 
 
+    def ap_summary(self, ap_mac):
+        """
+
+        :param ap_mac:
+        :return:
+        """
+        return self.request(
+            method='get',
+            url='v8_2/aps/{}/operational/summary'.format(ap_mac)
+        )
+        
     def get_wlans(self, zone_id):
         return self.retrieve_list(
             url='v8_2/rkszones/{}/wlans'.format(zone_id), method='get')

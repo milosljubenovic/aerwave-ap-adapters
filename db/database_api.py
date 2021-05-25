@@ -2,6 +2,7 @@ from requests.sessions import session
 from sqlalchemy import create_engine, or_
 from sqlalchemy.pool import NullPool
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 
 from db.models import *
 # from utils import Utils
@@ -26,8 +27,8 @@ class DatabaseAPI:
                 db_cfg['password'],
                 db_cfg['host'],
                 db_cfg['database']),
-                pool_recycle=1800,
-                connect_args={'connect_timeout': 10000})
+                poolclass= NullPool
+                )
 
     @staticmethod
     def _wlan_dict(obj):
@@ -139,30 +140,40 @@ class DatabaseAPI:
         session.close()
         return usr
 
-    def asign_zone_wg(self, ap_info):
+    def asign_zone_wg(self, ap_mac, wg_24, wg_50):
         session = self.session_maker()
-        unit = session.query(Unit).filter(Unit.uni_ap_mac == ap_info['mac']).first()
-        rwg_50 =None
+        unit = session.query(Unit).filter(Unit.uni_ap_mac == ap_mac).first()
+        rwg_50 = None
         rwg_24 = None
         if not unit:
             return False
 
         if not unit.rwg_24_id:
-            rwg_24 = RuckusWg24(wg24_name=ap_info['wlanGroup24']['name'],
-                                wg24_id=ap_info['wlanGroup24']['id'])
+            rwg_24 = RuckusWg24(wg24_name=wg_24.name,
+                                wg24_id=wg_24.wg_id)
             session.add(rwg_24)
-            session.commit()
+            
+        else:
+            unit.wg24_name=wg_24.name
+            unit.wg24_id = wg_24.wg_id
 
         if not unit.rwg_50_id:
-            rwg_50 = RuckusWg50(wg50_name=ap_info['wlanGroup50']['name'],
-                                wg50_id=ap_info['wlanGroup50']['id'])
+            rwg_50 = RuckusWg50(wg50_name=wg_50.name,
+                                wg50_id=wg_50.wg_id)
 
         
+    
+
             session.add(rwg_50)
-            session.commit()
+        else:
+            unit.wg50_name=wg_50.name
+            unit.wg50_id = wg_50.wg_id
+
+        
+        session.commit()
 
 
-        unit.uni_zoneid = ap_info['zoneId']
+        unit.uni_zoneid = wg_24.zone_id
         if rwg_50 and rwg_24:
             unit.rwg_24_id = rwg_24.rwg_24_id
             unit.rwg_50_id = rwg_50.rwg_50_id
@@ -172,7 +183,7 @@ class DatabaseAPI:
 
         return True
 
-    def get_wg(self, ap_mac):
+    def get_wg(self, wg_24, wg_25):
         session = self.session_maker()
 
         rv = {}
