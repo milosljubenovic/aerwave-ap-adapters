@@ -8,11 +8,11 @@ import yaml
 
 app = Flask(__name__)
 cfg = yaml.load(open('config.yml', 'rb'), yaml.FullLoader)
-ruckus_api = RuckusAPI(cfg)
-database_api = DatabaseAPI(cfg)
+# ruckus_api = RuckusAPI(cfg)
+# database_api = DatabaseAPI(cfg)
 
-ruckus_server = RuckusServer(ruckus_api = ruckus_api, db=database_api)
-print ("finished server worker init.")
+# ruckus_server = RuckusServer(ruckus_api = ruckus_api, db=database_api)
+# print ("finished server worker init.")
 @app.route('/create_wlan', methods=['POST'])
 def create_wlan():
 
@@ -80,26 +80,24 @@ def delete_wlan():
     else:
         return jsonify(msg="Failed on wlan creation...", ruckus = zones_status), 302
 
-
-
-
-        
-
 if __name__ == "__main__":
+
+    print ("HEY")
 
     import yaml
     import time
     cfg = yaml.load(open('config.yml', 'rb'), yaml.FullLoader)
     
     s = time.time()
+    print ("Mapper started at {}".format(time.time))
     ruckus_api = RuckusAPI(cfg)
     database_api = DatabaseAPI(cfg)
 
     ruckus_server = RuckusServer(ruckus_api = ruckus_api, db=database_api)
-    print (time.time() -s )
+    print ("Mapper ended at {}".format(time.time() -s))
     # s = time.time()
     # ruckus_server.refresh()
     # print (time.time() -s )
 
-    app.run(host=cfg['flask']['host'],
-            port=cfg['flask']['port'])
+    # app.run(host=cfg['flask']['host'],
+            # port=cfg['flask']['port'])

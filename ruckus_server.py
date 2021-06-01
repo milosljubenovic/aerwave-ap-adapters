@@ -17,7 +17,7 @@ class RuckusServer:
         zones = self.ra.get_zones()
 
         for zone in zones:
-            self.db.update_zoneid(zone_name=zone['name'], zone_id=zone['id'])
+            # self.db.update_zoneid(zone_name=zone['name'], zone_id=zone['id'])
             self.zones[zone['id']] = RuckusZone(ra=self.ra, 
                                                 zone_id=zone['id'], 
                                                 zone_name=zone['name'],

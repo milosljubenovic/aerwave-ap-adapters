@@ -1,11 +1,13 @@
 
+import threading
 from wlan_group import WlanGroup
+from threading import Thread
 
-class AccessPoint:
+class AccessPoint(Thread):
 
 
     def __init__(self, ra, ap_info, wlan_groups, db):
-        
+        Thread.__init__(self)
         self.ra = ra
         self.name = ap_info['name']
         self.mac = ap_info['mac']
@@ -15,11 +17,13 @@ class AccessPoint:
         self.wg_24 = None
         self.wg_50 = None
         self.wlan_groups = wlan_groups
-        self.db = db
+        # self.db = db
         self.ap_info = ap_info
         self._init_ap()
 
     def _init_ap(self):
+        if self.mac== "DC:AE:EB:0B:7B:F0":
+            print ("xxx")
         wg_24_name = "wg_24_{}".format(self.mac)
         wlan_group_24 = [wg for wg in self.wlan_groups if wg['name'] == wg_24_name]
         wg_50_name = "wg_50_{}".format(self.mac)
@@ -39,13 +43,14 @@ class AccessPoint:
             else:
                 wg_24_id = wlan_group_24[0]['id']
 
-            self.ra.ap_modify(
+        else:
+            self.wg_24 = WlanGroup(self.ra, wlan_group_24[0])
+            wg_24_id = wlan_group_24[0]['id']
+            
+        self.ra.ap_modify(
                     ap_mac=self.mac,
                     data={'wlanGroup{}'.format('24'): {'id': wg_24_id,
                                                         'name': wg_24_name}})
-        
-        else:
-            self.wg_24 = WlanGroup(self.ra, wlan_group_24[0])
         
         if not wlan_group_50:
             print ("Creating WG 50 for {}".format(self.mac))
@@ -60,16 +65,22 @@ class AccessPoint:
             else:
                 wg_50_id = wlan_group_50[0]['id']
 
-            self.ra.ap_modify(
-                    ap_mac=self.mac,
-                    data={'wlanGroup{}'.format('50'): {'id': wg_50_id,
-                                                        'name': wg_50_name }})
 
         else:
             self.wg_50 = WlanGroup(self.ra, wlan_group_50[0])  
+            wg_50_id = wlan_group_50[0]['id']
 
-        self.db.asign_zone_wg(self.mac, self.wg_24, self.wg_50)
 
+        self.ra.ap_modify(
+                    ap_mac=self.mac,
+                    data={'wlanGroup{}'.format('50'): {'id': wg_50_id,
+                                                        'name': wg_50_name }})
+        # self.db.asign_zone_wg(self.mac, self.wg_24, self.wg_50)
+
+    
+    def run(self):
+        self._init_ap()
+        
     def assign_static(self, wlan_id, wlan_obj):
         
 

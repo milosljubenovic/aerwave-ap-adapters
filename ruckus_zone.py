@@ -21,8 +21,12 @@ class RuckusZone:
         wlan_groups = self.ra.wlan_group_retrieve_list(self.zone_id)
         wlans = self.ra.get_wlans(self.zone_id)
 
-        for ap in zone_aps:
+        for k, ap in enumerate(zone_aps):
+            if ap['mac'] != 'DC:AE:EB:0B:7B:F0':
+                continue
+            print("{}/{} >> {}".format(k,len(zone_aps), ap['mac']))
             self.aps[ap['mac']] = AccessPoint(self.ra, ap, wlan_groups, self.db)
+            self.aps[ap['mac']].start()
         
         for wlan in wlans:
             self.wlans[wlan['id']] = Wlan(wlan)

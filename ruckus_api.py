@@ -193,4 +193,24 @@ class RuckusAPI:
         return self.request(
             method='get',
             url='/v8_2/rkszones/{}/wlans/{}'.format(zone_id, wlan_id))
-
+        
+    def get_clients(self, ap_mac=None):
+        #wlan name is here actually SSID name
+        return self.retrieve_list(
+                method='get',
+                url='/v6_0/aps/{}/operational/client'.format(ap_mac),
+                data={'attributes':['*']})
+        
+    def disconnect_client(self, ap_mac=None, client_mac=None):
+        return self.request(
+            method='post',
+            url='/v8_2/clients/disconnect', 
+            data={'mac': client_mac,
+                  'apMac':ap_mac})
+        
+    def deauth_client(self, ap_mac=None, client_mac=None):
+        return self.request(
+            method='post',
+            url='/v8_2/clients/deauth', 
+            data={'mac': client_mac,
+                  'apMac':ap_mac})
